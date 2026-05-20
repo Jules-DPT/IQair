@@ -134,10 +134,10 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch, nextTick, onBeforeMount } from 'vue'
 import { usePlugin_meteoIQAirApiStore } from '../stores/usePlugin_meteoIQAirApiStore'
 
-import imgTemperature from '../assets/temperature.png'
-import imgHumidite    from '../assets/humidite.png'
-import imgParticules  from '../assets/particules.png'
-import imgCo2         from '../assets/co2.png'
+import imgTemperature from '/src/assets/temperature.png'
+import imgHumidite    from '/src/assets/humidite.png'
+import imgParticules  from '/src/assets/particules.png'
+import imgCo2         from '/src/assets/co2.png'
 
 const rootEl     = ref<HTMLElement | null>(null)
 const windCanvas = ref<HTMLCanvasElement | null>(null)
