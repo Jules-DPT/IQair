@@ -3,18 +3,16 @@
     ref="rootEl"
     class="flex w-full h-full flex-col items-center rounded-3xl bg-surface-raised overflow-hidden"
   >
-
     <header
       class="w-full shrink-0 flex items-center justify-between px-8 pt-3 rounded-xl"
       :style="{ fontSize: titleSize }"
     >
       <span class="font-bold" style="color: var(--text)">Qualité de l'Air</span>
       <span class="tracking-widest" style="font-size: 10px; color: var(--text-muted)">
-        Capteur IQAir · {{ api.name }} / {{ api2.name }}
+        Capteurs IQAir Analytics
       </span>
     </header>
 
-    <!-- Error state -->
     <section
       v-if="api.error && api2.error"
       class="z-2 rounded-2xl grow flex items-center justify-center w-11/12 mb-2"
@@ -25,9 +23,8 @@
       </div>
     </section>
 
-    <!-- Loading state -->
     <section
-      v-else-if="api.loading && api.tempIndoor === 20 && api.co2 === 500 && api2.loading && api2.tempIndoor === 20 && api2.co2 === 500"
+      v-else-if="api.loading && api2.loading"
       class="z-2 rounded-2xl grow flex items-center justify-center w-11/12 mb-2"
     >
       <div class="text-center">
@@ -36,20 +33,34 @@
       </div>
     </section>
 
-    <!-- Main content — deux capteurs côte à côte -->
     <section
       v-else
-      class="z-2 rounded-2xl grow w-11/12 mb-2 flex gap-2 min-h-0"
+      class="z-2 rounded-2xl grow w-11/12 mb-2 flex gap-4 min-h-0"
     >
       <template v-for="(sensor, idx) in sensors" :key="idx">
         <div
           class="flex-1 grid min-h-0"
-          style="grid-template-columns: 0.8fr 0.8fr 1fr 1fr; grid-template-rows: 1fr 1fr 0.5fr;"
+          style="grid-template-columns: 0.8fr 0.8fr 1fr 1fr; grid-template-rows: auto 1fr 1fr 0.5fr;"
         >
-          <!-- Score circle -->
+          <div 
+            class="flex items-center justify-between px-2 pb-1" 
+            style="grid-column: 1 / 5; grid-row: 1 / 2;"
+          >
+            <span class="font-bold uppercase tracking-tight" style="color: var(--text); font-size: 11px">
+              {{ idx === 0 ? api.name : api2.name }}
+            </span>
+            <span 
+              v-if="idx === 1" 
+              class="text-sky-400 font-bold italic animate-pulse" 
+              style="font-size: 9px"
+            >
+              ❄️ AIR CONDITIONNÉ
+            </span>
+          </div>
+
           <div
             class="flex bg-surface-hover rounded-2xl m-1 text-center justify-center"
-            style="grid-column: 1 / 3; grid-row: 1 / 3; padding: 4px;"
+            style="grid-column: 1 / 3; grid-row: 2 / 4; padding: 4px;"
           >
             <div class="z-50 flex flex-col items-center justify-center w-full h-full">
               <div class="relative flex items-center justify-center w-full h-full">
@@ -71,30 +82,29 @@
             </div>
           </div>
 
-          <!-- Bottom band: outdoor metrics -->
-          <div class="flex text-center px-1 pb-1" style="grid-column: 1 / 5; grid-row: 3 / 4;">
-            <div class="flex items-stretch bg-surface-hover rounded-xl overflow-hidden w-full">
-
-              <!-- City image -->
-              <div class="relative shrink-0 overflow-hidden" :style="{ width: cityImgWidth }">
-                <img src="../assets/larochelle.jpg" alt="La Rochelle" class="h-full w-full object-cover">
-                <div class="absolute bottom-1 left-0 right-0 text-center">
-                  <span class="text-white font-bold drop-shadow-md" :style="{ fontSize: cityLabelSize }">La Rochelle</span>
+          <div class="flex text-center px-1 pb-1" style="grid-column: 1 / 5; grid-row: 4 / 5;">
+            <div class="flex items-stretch bg-surface-hover rounded-xl overflow-hidden w-full h-full">
+              <div class="relative shrink-0 overflow-hidden h-full" :style="{ width: cityImgWidth }">
+                <img src="../assets/larochelle.jpg" alt="City" class="h-full w-full object-cover">
+                <div class="absolute inset-0 bg-black/30"></div>
+                <div class="absolute inset-0 flex items-center justify-center p-1">
+                  <span class="text-white font-bold drop-shadow-lg text-center leading-tight w-full" :style="{ fontSize: cityLabelSize }">
+                    {{ idx === 0 ? (api.location?.city || '') : (api2.location?.city || '') }}, {{ idx === 0 ? (api.location?.country || '') : (api2.location?.country || '') }}
+                  </span>
                 </div>
               </div>
 
-              <!-- Outdoor metric tiles -->
-              <div class="flex flex-1 items-center overflow-hidden">
+              <div class="flex flex-1 items-center overflow-hidden h-full">
                 <div
                   v-for="(metric, i) in sensor.outdoorMetrics.value"
                   :key="metric.label"
-                  class="flex flex-1 flex-col items-start justify-center px-1 overflow-hidden"
+                  class="flex flex-1 flex-col items-start justify-center px-2 overflow-hidden h-full"
                   :style="i < sensor.outdoorMetrics.value.length - 1 ? 'border-right: 1px solid var(--text-muted)' : ''"
                 >
-                  <span class="font-semibold truncate w-full pl-1 text-left" style="color: var(--text-muted)" :style="{ fontSize: metricLabelSize }">
+                  <span class="font-semibold truncate w-full text-left" style="color: var(--text-muted)" :style="{ fontSize: metricLabelSize }">
                     {{ metric.label }}
                   </span>
-                  <div class="flex items-center gap-1 pl-1 mt-0.5">
+                  <div class="flex items-center gap-1 mt-0.5">
                     <img :src="metric.icon" :alt="metric.label" :style="{ width: metricIconSize, height: metricIconSize }" class="opacity-80 shrink-0">
                     <span class="font-bold leading-none" style="color: var(--text)" :style="{ fontSize: metricValueSize }">
                       {{ metric.value }}<span class="font-medium" style="color: #9ca3af" :style="{ fontSize: metricUnitSize }">{{ metric.unit }}</span>
@@ -105,8 +115,7 @@
             </div>
           </div>
 
-          <!-- Indoor tiles (2×2 grid) -->
-          <div class="grid gap-1 grid-cols-2 grid-rows-2 m-1" style="grid-column: 3 / 5; grid-row: 1 / 3;">
+          <div class="grid gap-1 grid-cols-2 grid-rows-2 m-1" style="grid-column: 3 / 5; grid-row: 2 / 4;">
             <div
               v-for="tile in sensor.indoorTiles.value"
               :key="tile.label"
@@ -133,11 +142,9 @@
               </div>
             </div>
           </div>
-
         </div>
 
-        <!-- Séparateur vertical entre les deux capteurs -->
-        <div v-if="idx === 0" class="w-px bg-surface-hover self-stretch my-2 shrink-0"></div>
+        <div v-if="idx === 0" class="w-px bg-surface-hover self-stretch my-4 shrink-0"></div>
       </template>
     </section>
   </article>
@@ -170,48 +177,46 @@ let canvasRos: (ResizeObserver | null)[] = []
 let timer: ReturnType<typeof setInterval> | null = null
 const windSpeed = 0.5
 
-// ── Helpers ──────────────────────────────────────────────────────────────
+// ── Helpers ──
 function lerp(v: number, vMin: number, vMax: number, outMin: number, outMax: number): number {
   const t = Math.min(1, Math.max(0, (v - vMin) / (vMax - vMin)))
   return outMin + t * (outMax - outMin)
 }
 function px(v: number): string { return `${Math.round(v)}px` }
 
-// ── Responsive sizes ──────────────────────────────────────────────────────
+// ── Responsive sizes ──
 const headerH  = computed(() => lerp(pluginHeight.value, 50, 600, 24, 48))
 const sectionH = computed(() => Math.max(0, pluginHeight.value - headerH.value))
-
-// Chaque colonne fait ~50% de la largeur totale
-const colW = computed(() => pluginWidth.value * 0.48)
+const colW     = computed(() => pluginWidth.value * 0.48)
 
 const scoreCellW = computed(() => colW.value * 0.40)
-const scoreCellH = computed(() => sectionH.value * 0.70)
+const scoreCellH = computed(() => sectionH.value * 0.65)
 const scoreBoxPx = computed(() => Math.min(scoreCellW.value, scoreCellH.value) * 0.62)
 const scoreInnerSize  = computed(() => px(scoreBoxPx.value * 0.72))
 const scoreTopSize    = computed(() => px(scoreBoxPx.value * 0.27))
 const scoreBottomSize = computed(() => px(scoreBoxPx.value * 0.19))
 
-const bandCellH     = computed(() => sectionH.value * 0.20)
-const cityImgWidth  = computed(() => px(lerp(bandCellH.value, 20, 120,  38, 130)))
-const cityLabelSize = computed(() => px(lerp(bandCellH.value, 20, 120,   5,  13)))
-const metricLabelSize = computed(() => px(lerp(bandCellH.value, 20, 120,  5,  11)))
-const metricValueSize = computed(() => px(lerp(bandCellH.value, 20, 120,  8,  22)))
-const metricUnitSize  = computed(() => px(lerp(bandCellH.value, 20, 120,  5,  11)))
-const metricIconSize  = computed(() => px(lerp(bandCellH.value, 20, 120,  8,  26)))
+const bandCellH     = computed(() => sectionH.value * 0.18)
+const cityImgWidth  = computed(() => px(lerp(bandCellH.value, 20, 120, 40, 140)))
+const cityLabelSize = computed(() => px(lerp(bandCellH.value, 20, 120, 6, 14)))
+const metricLabelSize = computed(() => px(lerp(bandCellH.value, 20, 120, 5, 11)))
+const metricValueSize = computed(() => px(lerp(bandCellH.value, 20, 120, 8, 22)))
+const metricUnitSize  = computed(() => px(lerp(bandCellH.value, 20, 120, 5, 11)))
+const metricIconSize  = computed(() => px(lerp(bandCellH.value, 20, 120, 8, 26)))
 
 const tileCellW = computed(() => colW.value * 0.25)
-const tileCellH = computed(() => sectionH.value * 0.40)
+const tileCellH = computed(() => sectionH.value * 0.35)
 const tileMin   = computed(() => Math.min(tileCellW.value, tileCellH.value))
-const tileLabelSize = computed(() => px(lerp(tileMin.value, 30, 200,  8, 14)))
-const tileValueSize = computed(() => px(lerp(tileMin.value, 30, 200,  9, 30)))
-const tileUnitSize  = computed(() => px(lerp(tileMin.value, 30, 200,  5, 14)))
+const tileLabelSize = computed(() => px(lerp(tileMin.value, 30, 200, 8, 14)))
+const tileValueSize = computed(() => px(lerp(tileMin.value, 30, 200, 9, 30)))
+const tileUnitSize  = computed(() => px(lerp(tileMin.value, 30, 200, 5, 14)))
 const tileIconSize  = computed(() => px(lerp(tileMin.value, 30, 200, 10, 32)))
-const tileBadgeSize = computed(() => px(lerp(tileMin.value, 30, 200,  5, 11)))
+const tileBadgeSize = computed(() => px(lerp(tileMin.value, 30, 200, 5, 11)))
 
 const titleSize   = computed(() => px(lerp(pluginWidth.value, 200, 700, 11, 22)))
 const contentSize = computed(() => px(lerp(pluginWidth.value, 200, 700, 10, 18)))
 
-// ── Score helpers ─────────────────────────────────────────────────────────
+// ── Score Logic ──
 function interpolate(x: number, x1: number, y1: number, x2: number, y2: number): number {
   const a = (y1 - y2) / (x1 - x2)
   return Math.max(0, Math.min(10, a * x + (y1 - a * x1)))
@@ -323,15 +328,17 @@ function getSubIndexTempHorsSaisonChauffe(tempIndoor: number, tR: number): numbe
   }
 }
 
-// ── Factory : crée tous les computed pour un capteur donné ────────────────
+// ── Factory ──
 type AnyStore = ReturnType<typeof usePlugin_meteoIQAirApiStore>
 
-function makeSensorData(store: AnyStore, tR: Ref<number | null>) {
-  const subIndexTemp = computed(() =>
-    isHorsSaisonChauffe() && tR.value !== null
-      ? getSubIndexTempHorsSaisonChauffe(store.tempIndoor ?? 0, tR.value)
-      : getSubIndexTemp(store.tempIndoor)
-  )
+function makeSensorData(store: AnyStore, tR: Ref<number | null>, forceChauffe = false) {
+  const subIndexTemp = computed(() => {
+    if (!forceChauffe && isHorsSaisonChauffe() && tR.value !== null) {
+      return getSubIndexTempHorsSaisonChauffe(store.tempIndoor ?? 0, tR.value)
+    }
+    return getSubIndexTemp(store.tempIndoor)
+  })
+
   const subIndexHum  = computed(() => getSubIndexHum(store.humIndoor))
   const subIndexCO2  = computed(() => getSubIndexCO2(store.co2))
   const subIndexPM25 = computed(() => getSubIndexPM25(store.pm25Indoor))
@@ -359,12 +366,12 @@ function makeSensorData(store: AnyStore, tR: Ref<number | null>) {
   return { globalScore, windColor, outdoorMetrics, indoorTiles }
 }
 
-const sensor1 = makeSensorData(api,  thetaRm)
-const sensor2 = makeSensorData(api2 as unknown as AnyStore, thetaRm2)
+const sensor1 = makeSensorData(api, thetaRm)
+const sensor2 = makeSensorData(api2 as unknown as AnyStore, thetaRm2, true) // Force Chauffe/AC
 
 const sensors = computed(() => [sensor1, sensor2])
 
-// ── Canvas wind animation ─────────────────────────────────────────────────
+// ── Canvas animation ──
 function startWindAnimation(canvas: HTMLCanvasElement, getColor: () => string, idx: number) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
@@ -424,10 +431,10 @@ function startWindAnimation(canvas: HTMLCanvasElement, getColor: () => string, i
   draw()
 }
 
-// ── Lifecycle ──────────────────────────────────────────────────────────────
+// ── Lifecycle ──
 onBeforeMount(() => {
-  void api.fetchPlugin_meteoIQAir()
-  void api2.fetchPlugin_meteoIQAir()
+  api.fetchPlugin_meteoIQAir()
+  api2.fetchPlugin_meteoIQAir()
 })
 
 onMounted(() => {
@@ -445,7 +452,6 @@ onMounted(() => {
   }
 })
 
-// Watchers thetaRm — un par capteur
 watch(() => api.tempOutdoor, (newTemp) => {
   if (newTemp === null) return
   thetaRm.value = thetaRm.value === null ? newTemp : updateThetaRm(thetaRm.value, newTemp)
@@ -456,9 +462,7 @@ watch(() => api2.tempOutdoor, (newTemp) => {
   thetaRm2.value = thetaRm2.value === null ? newTemp : updateThetaRm(thetaRm2.value, newTemp)
 })
 
-// Watcher canvas — démarre l'animation pour chaque canvas monté
 watch(windCanvases, async (canvases) => {
-  // Nettoyer les animations existantes
   animationFrameIds.forEach(id => cancelAnimationFrame(id))
   animationFrameIds = []
   canvasRos.forEach(r => r?.disconnect())
@@ -497,5 +501,14 @@ onBeforeUnmount(() => {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
 }
 </style>
