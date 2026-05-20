@@ -1,34 +1,51 @@
 <template>
   <article
     ref="rootEl"
-    class="flex w-[95%] my-2 mx-[2.5%] flex-col items-center rounded-3xl  bg-surface-raised overflow-hidden"
+    class="flex w-full h-full flex-col items-center rounded-3xl bg-surface-raised overflow-hidden"
   >
 
-  <header 
-  class="w-full shrink-0 flex items-center justify-between px-8 pt-3 rounded-xl"
-  :style="{ fontSize: titleSize }"
-  >
-    <span class="font-bold">Qualité de l'Air</span>
-    <span class="text-[10px] tracking-widest text-(--text-muted)">
-      Capteur IQAir · {{ api.name }}
-    </span>
-  </header>
+    <header
+      class="w-full shrink-0 flex items-center justify-between px-8 pt-3 rounded-xl"
+      :style="{ fontSize: titleSize }"
+    >
+      <span class="font-bold" style="color: var(--text)">Qualité de l'Air</span>
+      <span class="tracking-widest" style="font-size: 10px; color: var(--text-muted)">
+        Capteur IQAir · {{ api.name }}
+      </span>
+    </header>
 
-
-
+    <!-- Error state -->
     <section
       v-if="api.error"
       class="z-2 rounded-2xl grow flex items-center justify-center w-11/12 mb-2"
     >
-      <p class="text-red-500 text-center px-2" :style="{ fontSize: contentSize }">{{ api.error }}</p>
+      <div class="text-center px-4">
+        <div style="font-size: 48px; margin-bottom: 12px">⚠️</div>
+        <p style="color: #f87171;" :style="{ fontSize: contentSize }">{{ api.error }}</p>
+      </div>
     </section>
 
+    <!-- Loading state (no data yet) -->
+    <section
+      v-else-if="api.loading && api.tempIndoor === 20 && api.co2 === 500"
+      class="z-2 rounded-2xl grow flex items-center justify-center w-11/12 mb-2"
+    >
+      <div class="text-center">
+        <div class="loading-spinner"></div>
+        <p style="color: var(--text-muted); margin-top: 12px; font-size: 14px">Chargement des données…</p>
+      </div>
+    </section>
+
+    <!-- Main content -->
     <section
       v-else
-      class="z-2 rounded-2xl grow w-11/12 mb-2 grid min-h-0 grid-cols-[0.8fr_0.8fr_1fr_1fr] grid-rows-[1fr_1fr_0.5fr]"
+      class="z-2 rounded-2xl grow w-11/12 mb-2 grid min-h-0"
+      style="grid-template-columns: 0.8fr 0.8fr 1fr 1fr; grid-template-rows: 1fr 1fr 0.5fr;"
     >
-
-      <div class="flex bg-surface-hover rounded-2xl m-3 text-center justify-center col-start-1 col-end-3 row-start-1 row-end-3 p-1">
+      <!-- Score circle -->
+      <div class="flex bg-surface-hover rounded-2xl m-3 text-center justify-center"
+        style="grid-column: 1 / 3; grid-row: 1 / 3; padding: 4px;"
+      >
         <div class="z-50 flex flex-col items-center justify-center w-full h-full">
           <div class="relative flex items-center justify-center w-full h-full">
             <canvas ref="windCanvas" class="absolute inset-0 w-full h-full"></canvas>
@@ -36,36 +53,47 @@
               class="absolute flex flex-col items-center justify-center rounded-full bg-transparent"
               :style="['width:', scoreInnerSize, 'height:', scoreInnerSize].join('')"
             >
-              <p class="font-semibold leading-none" :style="{ fontSize: scoreTopSize, color: windColor }">{{ Math.round(globalScore) }}</p>
-              <div class="w-3/5 border-t my-1" :style="{borderColor: windColor }"></div>
+              <p class="font-semibold leading-none" :style="{ fontSize: scoreTopSize, color: windColor }">
+                {{ Math.round(globalScore) }}
+              </p>
+              <div class="w-3/5 border-t my-1" :style="{ borderColor: windColor }"></div>
               <span class="leading-none" :style="{ fontSize: scoreBottomSize, color: windColor }">10</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="flex text-center col-start-1 col-end-5 row-start-3 row-end-4 px-1 pb-1">
-        <div class="flex items-stretch bg-surface-hover rounded-xl  overflow-hidden w-full">
+      <!-- Bottom band: outdoor metrics -->
+      <div class="flex text-center px-1 pb-1" style="grid-column: 1 / 5; grid-row: 3 / 4;">
+        <div class="flex items-stretch bg-surface-hover rounded-xl overflow-hidden w-full">
 
-          <div class="relative shrink-0 overflow-hidden" :style="{ width: cityImgWidth }">
-            <img src="/src/assets/larochelle.jpg" alt="La Rochelle" class="h-full w-full object-cover">
+          <!-- City image placeholder -->
+          <div class="relative shrink-0 overflow-hidden flex items-center justify-center bg-gradient-to-br from-sky-900 to-slate-800"
+            :style="{ width: cityImgWidth }"
+          >
+            <div class="text-center">
+              <div style="font-size: clamp(16px, 3vw, 32px)">🌊</div>
+            </div>
             <div class="absolute bottom-1 left-0 right-0 text-center">
               <span class="text-white font-bold drop-shadow-md" :style="{ fontSize: cityLabelSize }">La Rochelle</span>
             </div>
           </div>
 
+          <!-- Outdoor metric tiles -->
           <div class="flex flex-1 items-center overflow-hidden">
             <div
               v-for="(metric, i) in outdoorMetrics"
               :key="metric.label"
               class="flex flex-1 flex-col items-start justify-center px-1 overflow-hidden"
-              :class="i < outdoorMetrics.length - 1 ? 'border-r border-(--text)' : ''"
+              :style="i < outdoorMetrics.length - 1 ? 'border-right: 1px solid var(--text-muted)' : ''"
             >
-              <span class="text-muted font-semibold truncate w-full pl-1 text-left" :style="{ fontSize: metricLabelSize }">{{ metric.label }}</span>
+              <span class="font-semibold truncate w-full pl-1 text-left" style="color: var(--text-muted)" :style="{ fontSize: metricLabelSize }">
+                {{ metric.label }}
+              </span>
               <div class="flex items-center gap-1 pl-1 mt-0.5">
-                <img :src="metric.icon" :alt="metric.label" :style="{ width: metricIconSize, height: metricIconSize }" class="opacity-80 shrink-0">
-                <span class="font-bold text-(--text) leading-none" :style="{ fontSize: metricValueSize }">
-                  {{ metric.value }}<span class="font-medium text-gray-400" :style="{ fontSize: metricUnitSize }">{{ metric.unit }}</span>
+                <span :style="{ fontSize: metricIconSize }" style="line-height: 1; opacity: 0.8">{{ metric.emoji }}</span>
+                <span class="font-bold leading-none" style="color: var(--text)" :style="{ fontSize: metricValueSize }">
+                  {{ metric.value }}<span class="font-medium" style="color: #9ca3af" :style="{ fontSize: metricUnitSize }">{{ metric.unit }}</span>
                 </span>
               </div>
             </div>
@@ -73,37 +101,36 @@
         </div>
       </div>
 
-      <div class="grid gap-2 grid-cols-2 grid-rows-2 m-3 col-start-3 col-end-5 row-start-1 row-end-3">
-
+      <!-- Indoor tiles (2×2 grid) -->
+      <div class="grid gap-2 grid-cols-2 grid-rows-2 m-3" style="grid-column: 3 / 5; grid-row: 1 / 3;">
         <div
           v-for="tile in indoorTiles"
           :key="tile.label"
           class="flex flex-col bg-surface-hover rounded-2xl overflow-hidden min-h-0 min-w-0"
         >
           <div class="flex items-center px-4 pt-2 pb-0.5 shrink-0">
-            <span class="text-gray-500 font-semibold truncate" :style="{ fontSize: tileLabelSize }">{{ tile.label }}</span>
+            <span class="font-semibold truncate" style="color: #6b7280" :style="{ fontSize: tileLabelSize }">{{ tile.label }}</span>
           </div>
           <div class="flex flex-1 items-center justify-start px-2 py-1 min-h-0 overflow-hidden">
-            <img :src="tile.icon" :alt="tile.label" :style="{ width: tileIconSize, height: tileIconSize }" class="shrink-0 opacity-80">
+            <span :style="{ fontSize: tileIconSize }" style="line-height: 1; opacity: 0.8; flex-shrink: 0;">{{ tile.emoji }}</span>
             <span class="flex-1 text-center font-bold leading-none overflow-hidden" :style="{ fontSize: tileValueSize }">
-              {{ tile.value }}<span class="font-medium text-(--text-muted)" :style="{ fontSize: tileUnitSize }">{{ tile.unit }}</span>
+              {{ tile.value }}<span class="font-medium" style="color: var(--text-muted)" :style="{ fontSize: tileUnitSize }">{{ tile.unit }}</span>
             </span>
           </div>
           <div class="flex items-center justify-left px-2 py-2 shrink-0">
-          <div
-            class="shrink-0 text-center px-3 py-0.5 rounded-full text-(--surface-hover)"
-            :class="scoreToColor(tile.score)"
-            :style="{ fontSize: tileBadgeSize }"
-          >
-            {{ scoreToLabel(tile.score) }}
-          </div>
+            <div
+              class="shrink-0 text-center px-3 py-0.5 rounded-full"
+              :class="scoreToColor(tile.score)"
+              style="color: white"
+              :style="{ fontSize: tileBadgeSize }"
+            >
+              {{ scoreToLabel(tile.score) }}
+            </div>
           </div>
         </div>
-
       </div>
 
     </section>
-
   </article>
 </template>
 
