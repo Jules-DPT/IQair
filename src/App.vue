@@ -22,6 +22,10 @@
           <input v-model="form.deviceId" class="config-input" placeholder="ex: ABCD1234..." />
         </label>
         <label class="config-label">
+          Device ID 2
+          <input v-model="form.deviceId2" class="config-input" placeholder="ex: ABCD1234..." />
+        </label>
+        <label class="config-label">
           Token API
           <input v-model="form.token" class="config-input" type="password" placeholder="••••••••••••" />
         </label>
@@ -85,6 +89,7 @@ const loading = computed(() => api.loading)
 const form = ref({
   userId:   localStorage.getItem('iqair-userId')   || '',
   deviceId: localStorage.getItem('iqair-deviceId') || '',
+  deviceId2: localStorage.getItem('iqair-deviceId2') || '',
   token:    localStorage.getItem('iqair-token')     || '',
 })
 
@@ -99,9 +104,11 @@ const lastUpdateText = computed(() => {
 function saveConfig() {
   localStorage.setItem('iqair-userId',   form.value.userId)
   localStorage.setItem('iqair-deviceId', form.value.deviceId)
+  localStorage.setItem('iqair-deviceId2', form.value.deviceId2)
   localStorage.setItem('iqair-token',    form.value.token)
   api.config.userId   = form.value.userId
   api.config.deviceId = form.value.deviceId
+  api.config.deviceId2 = form.value.deviceId2
   api.config.token    = form.value.token
   saved.value = true
   setTimeout(() => { saved.value = false }, 2000)
@@ -117,10 +124,11 @@ onMounted(() => {
   // Injecter les credentials depuis le localStorage si absents du .env
   if (!api.config.userId && form.value.userId)     api.config.userId   = form.value.userId
   if (!api.config.deviceId && form.value.deviceId) api.config.deviceId = form.value.deviceId
+  if (!api.config.deviceId2 && form.value.deviceId2) api.config.deviceId2 = form.value.deviceId2
   if (!api.config.token && form.value.token)       api.config.token    = form.value.token
 
   // Ouvrir le panel si aucun credential configuré
-  if (!api.config.userId || !api.config.deviceId || !api.config.token) {
+  if (!api.config.userId || !api.config.deviceId || !api.config.deviceId2 || !api.config.token) {
     configOpen.value = true
   }
 })
