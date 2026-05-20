@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface-raised: #1e2128;
+  --surface-hover: #272b35;
+  --text: #e2e8f0;
+  --text-muted: #8892a4;
+  --background: #141720;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+#app {
+  height: 100%;
+}
+
+.bg-surface-raised {
+  background-color: var(--surface-raised);
+}
+
+.bg-surface-hover {
+  background-color: var(--surface-hover);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.border-\(--text\) {
+  border-color: var(--text);
+}
