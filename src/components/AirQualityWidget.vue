@@ -67,13 +67,9 @@
       <div class="flex text-center px-1 pb-1" style="grid-column: 1 / 5; grid-row: 3 / 4;">
         <div class="flex items-stretch bg-surface-hover rounded-xl overflow-hidden w-full">
 
-          <!-- City image placeholder -->
-          <div class="relative shrink-0 overflow-hidden flex items-center justify-center bg-gradient-to-br from-sky-900 to-slate-800"
-            :style="{ width: cityImgWidth }"
-          >
-            <div class="text-center">
-              <div style="font-size: clamp(16px, 3vw, 32px)">🌊</div>
-            </div>
+          <!-- City image -->
+          <div class="relative shrink-0 overflow-hidden" :style="{ width: cityImgWidth }">
+            <img src="../assets/larochelle.jpg" alt="La Rochelle" class="h-full w-full object-cover">
             <div class="absolute bottom-1 left-0 right-0 text-center">
               <span class="text-white font-bold drop-shadow-md" :style="{ fontSize: cityLabelSize }">La Rochelle</span>
             </div>
@@ -91,7 +87,7 @@
                 {{ metric.label }}
               </span>
               <div class="flex items-center gap-1 pl-1 mt-0.5">
-                <span :style="{ fontSize: metricIconSize }" style="line-height: 1; opacity: 0.8">{{ metric.emoji }}</span>
+                <img :src="metric.icon" :alt="metric.label" :style="{ width: metricIconSize, height: metricIconSize }" class="opacity-80 shrink-0">
                 <span class="font-bold leading-none" style="color: var(--text)" :style="{ fontSize: metricValueSize }">
                   {{ metric.value }}<span class="font-medium" style="color: #9ca3af" :style="{ fontSize: metricUnitSize }">{{ metric.unit }}</span>
                 </span>
@@ -112,7 +108,7 @@
             <span class="font-semibold truncate" style="color: #6b7280" :style="{ fontSize: tileLabelSize }">{{ tile.label }}</span>
           </div>
           <div class="flex flex-1 items-center justify-start px-2 py-1 min-h-0 overflow-hidden">
-            <span :style="{ fontSize: tileIconSize }" style="line-height: 1; opacity: 0.8; flex-shrink: 0;">{{ tile.emoji }}</span>
+            <img :src="tile.icon" :alt="tile.label" :style="{ width: tileIconSize, height: tileIconSize }" class="shrink-0 opacity-80">
             <span class="flex-1 text-center font-bold leading-none overflow-hidden" :style="{ fontSize: tileValueSize }">
               {{ tile.value }}<span class="font-medium" style="color: var(--text-muted)" :style="{ fontSize: tileUnitSize }">{{ tile.unit }}</span>
             </span>
@@ -137,6 +133,11 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch, nextTick, onBeforeMount } from 'vue'
 import { usePlugin_meteoIQAirApiStore } from '../stores/usePlugin_meteoIQAirApiStore'
+
+import imgTemperature from '../assets/temperature.png'
+import imgHumidite    from '../assets/humidite.png'
+import imgParticules  from '../assets/particules.png'
+import imgCo2         from '../assets/co2.png'
 
 const rootEl     = ref<HTMLElement | null>(null)
 const windCanvas = ref<HTMLCanvasElement | null>(null)
@@ -191,17 +192,17 @@ const contentSize = computed(() => px(lerp(pluginWidth.value, 200, 700, 10, 18))
 
 // ── Data ──────────────────────────────────────────────────────────────────
 const outdoorMetrics = computed(() => [
-  { label: 'Température', emoji: '🌡️', value: api.tempOutdoor,  unit: '°C'      },
-  { label: 'Humidité',    emoji: '💧',  value: api.humOutdoor,   unit: '%'       },
-  { label: 'Particules',  emoji: '🌫️', value: api.pm25Outdoor,  unit: ' µg/m³' },
-  { label: 'CO₂',         emoji: '🍃',  value: 420,              unit: ' ppm'    },
+  { label: 'Température', icon: imgTemperature, value: api.tempOutdoor,  unit: '°C'      },
+  { label: 'Humidité',    icon: imgHumidite,    value: api.humOutdoor,   unit: '%'       },
+  { label: 'Particules',  icon: imgParticules,  value: api.pm25Outdoor,  unit: ' µg/m³' },
+  { label: 'CO₂',         icon: imgCo2,         value: 420,              unit: ' ppm'    },
 ])
 
 const indoorTiles = computed(() => [
-  { label: 'Température', emoji: '🌡️', value: api.tempIndoor,  unit: '°C',      score: subIndexTemp.value  },
-  { label: 'Humidité',    emoji: '💧',  value: api.humIndoor,   unit: '%',       score: subIndexHum.value   },
-  { label: 'Particules',  emoji: '🌫️', value: api.pm25Indoor,  unit: ' µg/m³', score: subIndexPM25.value  },
-  { label: 'CO₂',         emoji: '🍃',  value: api.co2,         unit: ' ppm',   score: subIndexCO2.value   },
+  { label: 'Température', icon: imgTemperature, value: api.tempIndoor,  unit: '°C',      score: subIndexTemp.value  },
+  { label: 'Humidité',    icon: imgHumidite,    value: api.humIndoor,   unit: '%',       score: subIndexHum.value   },
+  { label: 'Particules',  icon: imgParticules,  value: api.pm25Indoor,  unit: ' µg/m³', score: subIndexPM25.value  },
+  { label: 'CO₂',         icon: imgCo2,         value: api.co2,         unit: ' ppm',   score: subIndexCO2.value   },
 ])
 
 // ── Score calculations (identical to original) ────────────────────────────
