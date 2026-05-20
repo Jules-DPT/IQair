@@ -6,11 +6,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/iqair-api': {
-        target: 'https://api.airvisual.com/v2',
+        target: 'https://website-api.airvisual.com/v1',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/iqair-api/, ''),
-        secure: true,
-      }
+      },
     }
   }
 })
