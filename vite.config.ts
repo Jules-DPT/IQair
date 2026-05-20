@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/iqair-api': {
-        target: 'https://website-api.airvisual.com/v1',
+        target: 'https://website-api.airvisual.com/v2',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/iqair-api/, ''),
       },
