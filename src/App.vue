@@ -247,7 +247,6 @@ onMounted(() => {
 .widget-wrapper {
   width: 100%;
   height: 100%;
-  max-width: 1200px;
 }
 
 /* ── Config panel ── */
