@@ -1,0 +1,5 @@
+{
+    "rewrites": [
+      { "source": "/iqair-api/:path*", "destination": "/api/iqair/:path*" }
+    ]
+  }
