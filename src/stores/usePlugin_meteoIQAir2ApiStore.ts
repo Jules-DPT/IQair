@@ -27,7 +27,7 @@ export const usePlugin_meteoIQAir2ApiStore = defineStore('plugin-plugin_meteoIQA
       userId:   import.meta.env.VITE_IQAIR_USER_ID    || localStorage.getItem('iqair-userId'),
       deviceId: import.meta.env.VITE_IQAIR_DEVICE_ID2 || localStorage.getItem('iqair-deviceId2'),
       token:    import.meta.env.VITE_IQAIR_TOKEN       || localStorage.getItem('iqair-token'),
-      baseUrl:  'https://website-api.airvisual.com/v2',
+      baseUrl:  import.meta.env.DEV ? '/iqair-api' : 'https://website-api.airvisual.com/v2',
     },
   }),
 
