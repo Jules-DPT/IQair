@@ -283,8 +283,8 @@ function scoreToLabel(score: number): string {
 function scoreToColor(score: number): string {
   if (score >= 9.5) return 'bg-sky-300'
   if (score >= 7.5) return 'bg-sky-500'
-  if (score >= 5)   return 'bg-gray-400'
-  if (score >= 2.5) return 'bg-gray-500'
+  if (score >= 5)   return 'bg-blue-500'
+  if (score >= 2.5) return 'bg-cyan-700'
   return 'bg-gray-700'
 }
 
