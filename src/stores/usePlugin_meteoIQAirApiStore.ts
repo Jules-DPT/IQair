@@ -23,9 +23,9 @@ export const usePlugin_meteoIQAirApiStore = defineStore('plugin-plugin_meteoIQAi
     lastUpdated: null as Date | null,
     config: {
       // Priority: .env vars → localStorage → empty
-      userId:   import.meta.env.VITE_IQAIR_USER_ID   || localStorage.getItem('iqair-userId')   || '',
-      deviceId: import.meta.env.VITE_IQAIR_DEVICE_ID || localStorage.getItem('iqair-deviceId') || '',
-      token:    import.meta.env.VITE_IQAIR_TOKEN      || localStorage.getItem('iqair-token')    || '',
+      userId:   import.meta.env.VITE_IQAIR_USER_ID   || localStorage.getItem('iqair-userId'),
+      deviceId: import.meta.env.VITE_IQAIR_DEVICE_ID || localStorage.getItem('iqair-deviceId'),
+      token:    import.meta.env.VITE_IQAIR_TOKEN      || localStorage.getItem('iqair-token'),
       baseUrl:  '/iqair-api',
     },
   }),
