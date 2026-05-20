@@ -46,7 +46,6 @@ export const usePlugin_meteoIQAirApiStore = defineStore('plugin-plugin_meteoIQAi
         return
       }
 
-      this.loading = true
       this.error   = null
 
       try {
