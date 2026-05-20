@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
+  base: '/Jules-DPT.github.io/',
   server: {
     proxy: {
       '/iqair-api': {
