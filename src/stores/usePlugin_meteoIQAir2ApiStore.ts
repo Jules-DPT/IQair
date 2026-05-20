@@ -53,7 +53,6 @@ export const usePlugin_meteoIQAir2ApiStore = defineStore('plugin-plugin_meteoIQA
         return
       }
 
-      this.loading = true
       this.error   = null
 
       try {
