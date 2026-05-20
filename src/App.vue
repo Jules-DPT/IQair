@@ -18,11 +18,11 @@
           <input v-model="form.userId" class="config-input" placeholder="ex: 60a1b2c3d4e5f6..." />
         </label>
         <label class="config-label">
-          Device ID
+          Device ID (capteur 1)
           <input v-model="form.deviceId" class="config-input" placeholder="ex: ABCD1234..." />
         </label>
         <label class="config-label">
-          Device ID 2
+          Device ID 2 (capteur 2)
           <input v-model="form.deviceId2" class="config-input" placeholder="ex: ABCD1234..." />
         </label>
         <label class="config-label">
@@ -78,57 +78,74 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { usePlugin_meteoIQAirApiStore } from './stores/usePlugin_meteoIQAirApiStore'
+import { usePlugin_meteoIQAirApiStore }  from './stores/usePlugin_meteoIQAirApiStore'
+import { usePlugin_meteoIQAir2ApiStore } from './stores/usePlugin_meteoIQAir2ApiStore'
 import AirQualityWidget from './components/AirQualityWidget.vue'
 
-const api = usePlugin_meteoIQAirApiStore()
+const api   = usePlugin_meteoIQAirApiStore()
+const api2  = usePlugin_meteoIQAir2ApiStore()
+
 const configOpen = ref(false)
-const saved = ref(false)
-const loading = computed(() => api.loading)
+const saved      = ref(false)
+
+// Les deux stores chargent — on est "en cours" si l'un ou l'autre tourne
+const loading = computed(() => api.loading || api2.loading)
 
 const form = ref({
-  userId:   localStorage.getItem('iqair-userId')   || '',
-  deviceId: localStorage.getItem('iqair-deviceId') || '',
+  userId:    localStorage.getItem('iqair-userId')    || '',
+  deviceId:  localStorage.getItem('iqair-deviceId')  || '',
   deviceId2: localStorage.getItem('iqair-deviceId2') || '',
-  token:    localStorage.getItem('iqair-token')     || '',
+  token:     localStorage.getItem('iqair-token')      || '',
 })
 
 const lastUpdateText = computed(() => {
-  if (!api.lastUpdated) return 'Jamais actualisé'
-  const d = api.lastUpdated
+  const d = api.lastUpdated ?? api2.lastUpdated
+  if (!d) return 'Jamais actualisé'
   const h = String(d.getHours()).padStart(2, '0')
   const m = String(d.getMinutes()).padStart(2, '0')
   return `Mis à jour à ${h}:${m}`
 })
 
 function saveConfig() {
-  localStorage.setItem('iqair-userId',   form.value.userId)
-  localStorage.setItem('iqair-deviceId', form.value.deviceId)
+  localStorage.setItem('iqair-userId',    form.value.userId)
+  localStorage.setItem('iqair-deviceId',  form.value.deviceId)
   localStorage.setItem('iqair-deviceId2', form.value.deviceId2)
-  localStorage.setItem('iqair-token',    form.value.token)
+  localStorage.setItem('iqair-token',     form.value.token)
+
+  // Capteur 1
   api.config.userId   = form.value.userId
   api.config.deviceId = form.value.deviceId
-  api.config.deviceId2 = form.value.deviceId2
   api.config.token    = form.value.token
+
+  // Capteur 2
+  api2.config.userId   = form.value.userId
+  api2.config.deviceId = form.value.deviceId2
+  api2.config.token    = form.value.token
+
   saved.value = true
   setTimeout(() => { saved.value = false }, 2000)
-  api.fetchPlugin_meteoIQAir()
+
+  refresh()
   configOpen.value = false
 }
 
 function refresh() {
   api.fetchPlugin_meteoIQAir()
+  api2.fetchPlugin_meteoIQAir()
 }
 
 onMounted(() => {
   // Injecter les credentials depuis le localStorage si absents du .env
-  if (!api.config.userId && form.value.userId)     api.config.userId   = form.value.userId
-  if (!api.config.deviceId && form.value.deviceId) api.config.deviceId = form.value.deviceId
-  if (!api.config.deviceId2 && form.value.deviceId2) api.config.deviceId2 = form.value.deviceId2
-  if (!api.config.token && form.value.token)       api.config.token    = form.value.token
+  if (!api.config.userId   && form.value.userId)    api.config.userId   = form.value.userId
+  if (!api.config.deviceId && form.value.deviceId)  api.config.deviceId = form.value.deviceId
+  if (!api.config.token    && form.value.token)      api.config.token    = form.value.token
 
-  // Ouvrir le panel si aucun credential configuré
-  if (!api.config.userId || !api.config.deviceId || !api.config.deviceId2 || !api.config.token) {
+  if (!api2.config.userId   && form.value.userId)    api2.config.userId   = form.value.userId
+  if (!api2.config.deviceId && form.value.deviceId2) api2.config.deviceId = form.value.deviceId2
+  if (!api2.config.token    && form.value.token)      api2.config.token    = form.value.token
+
+  // Ouvrir le panel si des credentials manquent
+  if (!api.config.userId || !api.config.deviceId || !api2.config.deviceId || !api.config.token) {
     configOpen.value = true
   }
 })
