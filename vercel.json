@@ -1,5 +1,8 @@
 {
     "rewrites": [
-      { "source": "/iqair-api/:path*", "destination": "/api/iqair/:path*" }
+      {
+        "source": "/iqair-api/:path*",
+        "destination": "https://website-api.airvisual.com/v1/:path*"
+      }
     ]
   }
