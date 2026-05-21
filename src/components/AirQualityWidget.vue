@@ -291,8 +291,8 @@ function scoreToColor(score: number): string {
 function globalScoreToColor(score: number): string {
   if (score >= 9.5) return '#7DD3FC'
   if (score >= 7.5) return '#0EA5E9'
-  if (score >= 5)   return '#9CA3AF'
-  if (score >= 2.5) return '#6B7280'
+  if (score >= 5)   return '#3b82f6'
+  if (score >= 2.5) return '#0e7490'
   return '#374151'
 }
 
