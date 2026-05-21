@@ -29,7 +29,7 @@ export const usePlugin_meteoIQAir2ApiStore = defineStore('plugin-plugin_meteoIQA
       token:    import.meta.env.VITE_IQAIR_TOKEN       || localStorage.getItem('iqair-token'),
       baseUrl:  import.meta.env.DEV 
               ? '/iqair-api' 
-              : 'https://ton-projet.vercel.app/api/iqair', 
+              : 'https://jules-dpt-github-io.vercel.app/api/iqair', 
     },
   }),
 
