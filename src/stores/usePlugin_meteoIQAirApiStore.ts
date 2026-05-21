@@ -26,7 +26,10 @@ export const usePlugin_meteoIQAirApiStore = defineStore('plugin-plugin_meteoIQAi
       userId:   import.meta.env.VITE_IQAIR_USER_ID   || localStorage.getItem('iqair-userId'),
       deviceId: import.meta.env.VITE_IQAIR_DEVICE_ID || localStorage.getItem('iqair-deviceId'),
       token:    import.meta.env.VITE_IQAIR_TOKEN      || localStorage.getItem('iqair-token'),
-      baseUrl:  import.meta.env.DEV ? '/iqair-api' : 'https://cors-anywhere.herokuapp.com/https://website-api.airvisual.com/v2',    },
+      baseUrl:  import.meta.env.DEV 
+              ? '/iqair-api' 
+              : 'https://ton-projet.vercel.app/api/iqair', 
+    },
   }),
 
   actions: {
@@ -49,17 +52,12 @@ export const usePlugin_meteoIQAirApiStore = defineStore('plugin-plugin_meteoIQAi
       this.error   = null
 
       try {
-        const url = `${this.config.baseUrl}/users/${this.config.userId}/devices/${this.config.deviceId}`
         
-        const response = await axios.get(url, {
+        const response = await axios.get(this.config.baseUrl, {
           params: {
-            'units.system': 'metric',
-            'AQI':          'US',
-            'language':     'en',
-          },
-          headers: {
-            'x-login-token': this.config.token,
-            'accept':        'application/json',
+            userId:   this.config.userId,
+            deviceId: this.config.deviceId,
+            token:    this.config.token,
           },
         })
 
